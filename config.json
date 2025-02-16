@@ -1,12 +1,21 @@
 {
     "items": [
+        {
+            "store": "bershka",
+            "url": "https://www.bershka.com/tr/z%C4%B1mbal%C4%B1-bowling-%C3%A7anta-c0p179096472.html?colorId=800",
+            "sizes_to_check": [
+                "BAG"
+            ]
+        }
     ],
-    "sleep_min_seconds": 30,
-    "sleep_max_seconds": 35,
+    "sleep_min_seconds": 250,
+    "sleep_max_seconds": 300,
     "chrome_driver_path": "chromedriver.exe",
     "telegram": {
-        "bot_token": "YOUR_BOT_TOKEN",
+        "bot_token": "7242624470:AAF4CmrjuW5osg1TB_ndKyvp6EW3wgcpRVI",
         "allowed_users": [
+            "5653047251",
+            "823838055"
         ]
     }
 }
