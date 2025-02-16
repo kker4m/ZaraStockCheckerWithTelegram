@@ -166,19 +166,29 @@ def check_stock_zara(driver, sizes_to_check):
         print("Waiting for the size selector items to appear...")
         wait = WebDriverWait(driver, 40)
         
-        # Hatalı olan kısmı düzeltelim
-        wait.until(EC.presence_of_element_located((By.XPATH, '//button[@data-qa-action="add-to-cart"]')))
-        
-        add_to_cart_button = driver.find_element(By.XPATH, '//button[@data-qa-action="add-to-cart"]')
-        add_to_cart_button.click()
-
-        sizes_in_stock = driver.find_elements(By.XPATH, '//button[@data-qa-action="size-in-stock"]')
+        # Ürün adını al
         product_name = driver.find_element(By.XPATH, '//h1[@data-qa-qualifier="product-detail-info-name"]').text
+        
+        # Çanta kontrolü
+        if 'BAG' in sizes_to_check:
+            try:
+                add_button = driver.find_element(By.XPATH, '//button[@data-qa-action="add-to-cart"]')
+                if not "disabled" in add_button.get_attribute("class"):
+                    return_string += f"{product_name} için stok bulundu, link: {driver.current_url}\n"
+            except:
+                pass
+        else:
+            # Normal beden kontrolü
+            wait.until(EC.presence_of_element_located((By.XPATH, '//button[@data-qa-action="add-to-cart"]')))
+            add_to_cart_button = driver.find_element(By.XPATH, '//button[@data-qa-action="add-to-cart"]')
+            add_to_cart_button.click()
 
-        for size in sizes_in_stock:
-            size_text = size.text.strip()  # Boşlukları temizle
-            if size_text in sizes_to_check:
-                return_string += f"{product_name} için {size_text} Bedeninde stok bulundu, link: {driver.current_url}\n"
+            sizes_in_stock = driver.find_elements(By.XPATH, '//button[@data-qa-action="size-in-stock"]')
+
+            for size in sizes_in_stock:
+                size_text = size.text.strip()
+                if size_text in sizes_to_check:
+                    return_string += f"{product_name} için {size_text} Bedeninde stok bulundu, link: {driver.current_url}\n"
 
         if return_string == "":
             return None
@@ -218,46 +228,49 @@ def check_stock_bershka(driver, sizes_to_check):
         # Proceed with the stock check
         print("Waiting for the size buttons to appear...")
         wait = WebDriverWait(driver, 40)
-        wait.until(EC.presence_of_element_located((By.XPATH, "//button[@data-qa-anchor='addToCartSizeBtn']")))
-
-        # Find the size buttons
-        size_elements = driver.find_elements(By.CSS_SELECTOR, "button[data-qa-anchor='sizeListItem']")
-        sizes_found = {size: False for size in sizes_to_check}
         product_name = driver.find_element(By.XPATH, '//h1[@class="product-detail-info-layout__title bds-typography-heading-xs"]').text
-        for button in size_elements:
+        # Çanta kontrolü
+        if 'BAG' in sizes_to_check:
             try:
-                # Look for the size label within each button
-                size_label = button.find_element(By.CSS_SELECTOR, "span.text__label").text.strip()
-                if size_label in sizes_to_check:
-                    sizes_found[size_label] = True
-                    if button.get_attribute("class").__contains__("is-disabled"):
-                        print(f"The {size_label} size button is disabled (out of stock).")
-                    else:
-                        print(f"The {size_label} size button is enabled (in stock).")
-                        return_string += f"{product_name} için {size_label} Bedeninde stok bulundu, link: {driver.current_url}\n"
-            except Exception as e:
-                print(f"Error processing size element: {e}")
-                continue
-        
-        if (return_string == ""):
+                add_button = driver.find_element(By.XPATH, "//button[@data-qa-anchor='addToCartSizeBtn' or @data-qa-anchor='addToCartBtn']")
+                if not "disabled" in add_button.get_attribute("class"):
+                    return_string += f"{product_name} için stok bulundu, link: {driver.current_url}\n"
+            except:
+                pass
+        else:
+            # Normal beden kontrolü
+            wait.until(EC.presence_of_element_located((By.XPATH, "//button[@data-qa-anchor='addToCartSizeBtn' or @data-qa-anchor='addToCartBtn']")))
+            size_elements = driver.find_elements(By.CSS_SELECTOR, "button[data-qa-anchor='sizeListItem']")
+
+            for button in size_elements:
+                try:
+                    size_label = button.find_element(By.CSS_SELECTOR, "span.text__label").text.strip()
+                    if size_label in sizes_to_check:
+                        if not button.get_attribute("class").__contains__("is-disabled"):
+                            return_string += f"{product_name} için {size_label} Bedeninde stok bulundu, link: {driver.current_url}\n"
+                except Exception as e:
+                    print(f"Error processing size element: {e}")
+                    continue
+
+        if return_string == "":
             return None
-        
         return return_string
     except Exception as e:
         print(f"An error occurred during the operation: {e}")
-    
-    return None
+        return None
 
-# Function to check stock availability (For Gratis)
+# Function to check stock availability (For Pull&Bear)
 def check_stock_pull_and_bear(driver, sizes_to_check):
     return_string = ""
     try:
         # Proceed with the stock check
         print("Waiting for the size buttons to appear...")
         wait = WebDriverWait(driver, 40)
+        product_name = driver.find_element(By.XPATH, '//h1[@id="titleProductCard"]').text
+
+        # Normal beden kontrolü
         wait.until(EC.presence_of_element_located((By.XPATH, '//div[@class="c-product-info--buttons-container"]/button')))
 
-        # Shadow DOM içindeki elemanlara erişim
         size_selector = driver.find_element(By.CSS_SELECTOR, "size-selector-with-length")
         shadow_root_1 = driver.execute_script("return arguments[0].shadowRoot", size_selector)
 
@@ -267,34 +280,26 @@ def check_stock_pull_and_bear(driver, sizes_to_check):
         size_list = shadow_root_2.find_element(By.CSS_SELECTOR, "size-list")
         shadow_root_3 = driver.execute_script("return arguments[0].shadowRoot", size_list)
 
-        size_elements  = shadow_root_3.find_elements(By.CSS_SELECTOR, "button")  # Beden seçeneklerini al
+        size_elements = shadow_root_3.find_elements(By.CSS_SELECTOR, "button")
 
-        sizes_found = {size: False for size in sizes_to_check}
-        product_name = driver.find_element(By.XPATH, '//h1[@id="titleProductCard"]').text
         for button in size_elements:
             try:
                 spans = button.find_elements(By.TAG_NAME,'span')
                 size_label = spans[0].text
                 if size_label in sizes_to_check:
-                    sizes_found[size_label] = True
-                    if len(spans) == 2:
-                        print(f"The {size_label} size button is disabled (out of stock).")
-                    else:
-                        print(f"The {size_label} size button is enabled (in stock).")
+                    if len(spans) != 2:  # Stokta var
                         return_string += f"{product_name} için {size_label} Bedeninde stok bulundu, link: {driver.current_url}\n"
             except Exception as e:
                 print(f"Error processing size element: {e}")
                 continue
-        
-        if (return_string == ""):
+
+        if return_string == "":
             return None
         
         return return_string
     except Exception as e:
         print(f"An error occurred during the operation: {e}")
-    
-    return None
-# Function to check stock availability (For Pull & Bear)
+        return None
 
 def watsonsChecker(driver):
     wait = WebDriverWait(driver, 40)

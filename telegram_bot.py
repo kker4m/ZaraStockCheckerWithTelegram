@@ -118,22 +118,31 @@ class TelegramBot:
             await self.save_product(update, context)
             return ConversationHandler.END
 
-        # Diğer mağazalar için beden seçimi
+        # Beden seçim menüsünü hazırla
         keyboard = [
             [InlineKeyboardButton("XS", callback_data="size_XS"),
              InlineKeyboardButton("S", callback_data="size_S"),
              InlineKeyboardButton("M", callback_data="size_M")],
             [InlineKeyboardButton("L", callback_data="size_L"),
-             InlineKeyboardButton("XL", callback_data="size_XL")],
-            [InlineKeyboardButton("✅ Seçimi Tamamla", callback_data="size_done")]
+             InlineKeyboardButton("XL", callback_data="size_XL")]
         ]
+
+        # Sadece Zara ve Bershka için çanta seçeneği ekle
+        store = self.temp_product_data[user_id]["store"]
+        if store in ["zara", "bershka"]:
+            keyboard.append([InlineKeyboardButton("👜 ÇANTA", callback_data="size_BAG")])
+
+        keyboard.append([InlineKeyboardButton("✅ Seçimi Tamamla", callback_data="size_done")])
         reply_markup = InlineKeyboardMarkup(keyboard)
-        await update.message.reply_text(
-            "Lütfen takip etmek istediğiniz bedenleri seçin.\n"
-            "Birden fazla beden seçebilirsiniz.\n"
-            "Seçiminiz bittiğinde 'Seçimi Tamamla' butonuna tıklayın:", 
-            reply_markup=reply_markup
-        )
+
+        # Mesajı hazırla
+        message = "Lütfen takip etmek istediğiniz bedenleri seçin.\n"
+        if store in ["zara", "bershka"]:
+            message += "Çanta/Aksesuar için 'ÇANTA' seçeneğini kullanın.\n"
+        message += "Birden fazla beden seçebilirsiniz.\n"
+        message += "Seçiminiz bittiğinde 'Seçimi Tamamla' butonuna tıklayın:"
+
+        await update.message.reply_text(message, reply_markup=reply_markup)
         return SIZE_INPUT
 
     async def size_callback(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -156,6 +165,7 @@ class TelegramBot:
 
         size = query.data.replace("size_", "")
         sizes = self.temp_product_data[user_id]["sizes"]
+        store = self.temp_product_data[user_id]["store"]
         
         if size in sizes:
             sizes.remove(size)
@@ -173,13 +183,19 @@ class TelegramBot:
             [InlineKeyboardButton(
                 f"{'✅ ' if 'L' in sizes else ''}L", callback_data="size_L"),
              InlineKeyboardButton(
-                f"{'✅ ' if 'XL' in sizes else ''}XL", callback_data="size_XL")],
-            [InlineKeyboardButton("✅ Seçimi Tamamla", callback_data="size_done")]
+                f"{'✅ ' if 'XL' in sizes else ''}XL", callback_data="size_XL")]
         ]
+
+        # Sadece Zara ve Bershka için çanta seçeneği ekle
+        if store in ["zara", "bershka"]:
+            keyboard.append([InlineKeyboardButton(
+                f"{'✅ ' if 'BAG' in sizes else ''}👜 ÇANTA", callback_data="size_BAG")])
+
+        keyboard.append([InlineKeyboardButton("✅ Seçimi Tamamla", callback_data="size_done")])
         reply_markup = InlineKeyboardMarkup(keyboard)
         
         await query.edit_message_text(
-            f"Seçilen bedenler: {', '.join(sizes) if sizes else 'Henüz beden seçilmedi'}\n"
+            f"Seçilen bedenler: {', '.join(['Çanta' if s == 'BAG' else s for s in sizes]) if sizes else 'Henüz seçim yapılmadı'}\n"
             "Seçiminiz bittiğinde 'Seçimi Tamamla' butonuna tıklayın:",
             reply_markup=reply_markup
         )
