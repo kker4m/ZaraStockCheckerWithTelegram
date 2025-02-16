@@ -124,7 +124,9 @@ class TelegramBot:
              InlineKeyboardButton("S", callback_data="size_S"),
              InlineKeyboardButton("M", callback_data="size_M")],
             [InlineKeyboardButton("L", callback_data="size_L"),
-             InlineKeyboardButton("XL", callback_data="size_XL")]
+             InlineKeyboardButton("XL", callback_data="size_XL")],
+            [InlineKeyboardButton("36", callback_data="size_36"),
+             InlineKeyboardButton("37", callback_data="size_37")]
         ]
 
         # Sadece Zara ve Bershka için çanta seçeneği ekle
@@ -183,7 +185,11 @@ class TelegramBot:
             [InlineKeyboardButton(
                 f"{'✅ ' if 'L' in sizes else ''}L", callback_data="size_L"),
              InlineKeyboardButton(
-                f"{'✅ ' if 'XL' in sizes else ''}XL", callback_data="size_XL")]
+                f"{'✅ ' if 'XL' in sizes else ''}XL", callback_data="size_XL")],
+            [InlineKeyboardButton(
+                f"{'✅ ' if '36' in sizes else ''}36", callback_data="size_36"),
+             InlineKeyboardButton(
+                f"{'✅ ' if '37' in sizes else ''}37", callback_data="size_37")]
         ]
 
         # Sadece Zara ve Bershka için çanta seçeneği ekle
