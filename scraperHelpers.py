@@ -232,11 +232,12 @@ def check_stock_bershka(driver, sizes_to_check):
         # Çanta kontrolü
         if 'BAG' in sizes_to_check:
             try:
+                wait.until(EC.presence_of_element_located((By.XPATH, '//button[@data-qa-anchor="pdpViewSimilarsButton"]')))
+                driver.find_element(By.XPATH,'//button[@data-qa-anchor="pdpViewSimilarsButton"]')    
+            except:
                 add_button = driver.find_element(By.XPATH, "//button[@data-qa-anchor='addToCartSizeBtn' or @data-qa-anchor='addToCartBtn']")
                 if not "disabled" in add_button.get_attribute("class"):
                     return_string += f"{product_name} için stok bulundu, link: {driver.current_url}\n"
-            except:
-                pass
         else:
             # Normal beden kontrolü
             wait.until(EC.presence_of_element_located((By.XPATH, "//button[@data-qa-anchor='addToCartSizeBtn' or @data-qa-anchor='addToCartBtn']")))
