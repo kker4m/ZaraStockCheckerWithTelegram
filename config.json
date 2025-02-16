@@ -1,0 +1,12 @@
+{
+    "items": [
+    ],
+    "sleep_min_seconds": 30,
+    "sleep_max_seconds": 35,
+    "chrome_driver_path": "chromedriver.exe",
+    "telegram": {
+        "bot_token": "YOUR_BOT_TOKEN",
+        "allowed_users": [
+        ]
+    }
+}

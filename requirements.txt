@@ -1,2 +1,4 @@
 selenium==4.11.2
 pygame
+webdriver-manager==4.0.1
+python-telegram-bot==20.4
