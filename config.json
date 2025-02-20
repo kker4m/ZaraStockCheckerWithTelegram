@@ -7,6 +7,8 @@
     "telegram": {
         "bot_token": "YOUR_TELEGRAM_BOT_API",
         "allowed_users": [
+            "ORNEKUSERID1",
+            "ORNEKUSERID2"
         ]
     }
 }
