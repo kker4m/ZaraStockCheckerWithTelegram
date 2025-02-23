@@ -186,7 +186,7 @@ def check_stock_zara(driver, sizes_to_check):
             sizes_in_stock = driver.find_elements(By.XPATH, '//button[@data-qa-action="size-in-stock"]')
 
             for size in sizes_in_stock:
-                size_text = size.text.strip()
+                size_text = size.text.split()[0]
                 if size_text in sizes_to_check:
                     return_string += f"{product_name} için {size_text} Bedeninde stok bulundu, link: {driver.current_url}\n"
 
